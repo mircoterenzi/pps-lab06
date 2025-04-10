@@ -63,7 +63,9 @@ enum List[A]:
       case (l1, l2, b) => (l1, l2)
   def takeRight(n: Int): List[A] =
     this.zipWithIndex.filter((_, index) => index >= this.length() - n).map(_._1)
-  def collect(predicate: PartialFunction[A, A]): List[A] = ???
+  def collect(predicate: PartialFunction[A, A]): List[A] =
+    this.flatMap(elem => if predicate.isDefinedAt(elem) then predicate(elem) :: Nil() else Nil())
+
 // Factories
 object List:
 
@@ -76,8 +78,6 @@ object List:
     if n == 0 then Nil() else elem :: of(elem, n - 1)
 
 object Test extends App:
-
-  import List.*
   val reference = List(1, 2, 3, 4)
   println(reference.zipWithValue(10)) // List((1, 10), (2, 10), (3, 10), (4, 10))
   println(reference.zipWithIndex) // List((1, 0), (2, 1), (3, 2), (4, 3))
