@@ -52,12 +52,12 @@ trait ConferenceReviewing {
    * and at least one RELEVANCE score that is >= 8.
    * @return the set of accepted articles
    */
-  def acceptedArticles: List[Int]
+  def acceptedArticles: util.Set[Int]
 
   /**
    * @return accepted articles as a list of pairs article+averageFinalScore, ordered from worst to best based on averageFinalScore
    */
-  def sortedAcceptedArticles: List[Nothing]
+  def sortedAcceptedArticles: util.List[Nothing]
 
   /**
    * @return a map from articles to their average "weighted final score", namely,
