@@ -57,7 +57,7 @@ trait ConferenceReviewing {
   /**
    * @return accepted articles as a list of pairs article+averageFinalScore, ordered from worst to best based on averageFinalScore
    */
-  def sortedAcceptedArticles: util.List[Nothing]
+  def sortedAcceptedArticles: util.List[(Int, Double)]
 
   /**
    * @return a map from articles to their average "weighted final score", namely,
@@ -87,7 +87,38 @@ class ConferenceReviewingImpl extends ConferenceReviewing:
       .map(_._2.get(question))
       .sorted()
       .collect(util.stream.Collectors.toList())
-  override def averageFinalScore(article: Int): Double = ???
-  override def acceptedArticles: List[Int] = ???
-  override def sortedAcceptedArticles: List[Nothing] = ???
-  override def averageWeightedFinalScoreMap: util.Map[Int, Double] = ???
+  override def averageFinalScore(article: Int): Double =
+    reviews.stream()
+      .filter(_._1 == article)
+      .mapToDouble(_._2.get(Question.FINAL))
+      .average()
+      .orElse(0.0)
+  override def acceptedArticles: util.Set[Int] =
+    reviews.stream()
+      .map(_._1)
+      .filter(averageFinalScore(_) > 5.0)
+      .filter(article =>
+        reviews.stream()
+          .filter(_._1 == article)
+          .map(_._2.entrySet())
+          .flatMap(_.stream())
+          .anyMatch(elem => elem.getKey == Question.RELEVANCE && elem.getValue >= 8))
+      .collect(util.stream.Collectors.toSet())
+  override def sortedAcceptedArticles: util.List[(Int, Double)] =
+    acceptedArticles.stream()
+      .map(article => (article, averageFinalScore(article)))
+      .sorted((e1, e2) => e1._2.compareTo(e2._2))
+      .collect(util.stream.Collectors.toList())
+  private def _averageWeightedFinalScore(article: Int): Double =
+    reviews.stream()
+      .filter(_._1 == article)
+      .mapToDouble(review => review._2.get(Question.FINAL) * review._2.get(Question.CONFIDENCE) / 10.0)
+      .average()
+      .orElse(0.0)
+  override def averageWeightedFinalScoreMap: util.Map[Int, Double] =
+    reviews.stream()
+      .map(_._1)
+      .distinct()
+      .collect(util.stream.Collectors.toMap[Int, Int, Double](
+        article => article, _averageWeightedFinalScore(_))
+      )
