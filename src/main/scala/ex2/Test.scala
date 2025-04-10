@@ -47,7 +47,7 @@ class Test {
     cr.loadReview(3, 4, 4, 4, 4) // 1.6
     cr.loadReview(4, 6, 6, 6, 6) // 3.6
     cr.loadReview(4, 7, 7, 8, 7) // 5.6
-    val map = new util.HashMap[Question, Integer]()
+    val map = new util.HashMap[Question, Int]()
     map.put(Question.RELEVANCE, 8)
     map.put(Question.SIGNIFICANCE, 8)
     map.put(Question.CONFIDENCE, 7) // 5.6

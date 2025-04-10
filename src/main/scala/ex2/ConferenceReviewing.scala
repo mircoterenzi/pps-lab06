@@ -1,6 +1,8 @@
 package ex2
 
 import java.util
+import ex1.List
+import List.*
 
 /**
  * An interface modelling the results of reviewing articles of a conference
@@ -28,7 +30,7 @@ trait ConferenceReviewing {
   /**
    * loads a review for the specified article, with complete scores as a map
    */
-  def loadReview(article: Int, scores: util.Map[Question, Integer]): Unit
+  def loadReview(article: Int, scores: util.Map[Question, Int]): Unit
 
   /**
    * loads a review for the specified article, with the 4 explicit scores
@@ -38,7 +40,7 @@ trait ConferenceReviewing {
   /**
    * @return the scores given to the specified article and specified question, as an (ascending-ordered) list 
    */
-  def orderedScores(article: Int, question: Question): util.List[Integer]
+  def orderedScores(article: Int, question: Question): util.List[Int]
 
   /**
    * @return the average score to question FINAL taken by the specified article
@@ -50,7 +52,7 @@ trait ConferenceReviewing {
    * and at least one RELEVANCE score that is >= 8.
    * @return the set of accepted articles
    */
-  def acceptedArticles: List[Integer]
+  def acceptedArticles: List[Int]
 
   /**
    * @return accepted articles as a list of pairs article+averageFinalScore, ordered from worst to best based on averageFinalScore
@@ -62,15 +64,25 @@ trait ConferenceReviewing {
    *         the average value of CONFIDENCE*FINAL/10  
    *         Note: this method is optional in this exam
    */
-  def averageWeightedFinalScoreMap: util.Map[Integer, Double]
+  def averageWeightedFinalScoreMap: util.Map[Int, Double]
 }
 
 class ConferenceReviewingImpl extends ConferenceReviewing:
   import ConferenceReviewing.Question
-  override def loadReview(article: Int, scores: util.Map[Question, Integer]): Unit = ???
-  override def loadReview(article: Int, relevance: Int, significance: Int, confidence: Int, fin: Int): Unit = ???
-  override def orderedScores(article: Int, question: Question): util.List[Integer] = ???
+  var reviews: List[(Int, util.Map[Question, Int])] = List.Nil()
+
+  override def loadReview(article: Int, scores: util.Map[Question, Int]): Unit =
+    if scores.size() < Question.values.length then throw new IllegalArgumentException()
+    else reviews = reviews.append(List((article, scores)))
+  override def loadReview(article: Int, relevance: Int, significance: Int, confidence: Int, fin: Int): Unit =
+    val map = new util.HashMap[Question, Int]()
+    map.put(Question.RELEVANCE, relevance)
+    map.put(Question.SIGNIFICANCE, significance)
+    map.put(Question.CONFIDENCE, confidence)
+    map.put(Question.FINAL, fin)
+    reviews = reviews.append(List((article, map)))
+  override def orderedScores(article: Int, question: Question): util.List[Int] = ???
   override def averageFinalScore(article: Int): Double = ???
-  override def acceptedArticles: List[Integer] = ???
+  override def acceptedArticles: List[Int] = ???
   override def sortedAcceptedArticles: List[Nothing] = ???
-  override def averageWeightedFinalScoreMap: util.Map[Integer, Double] = ???
+  override def averageWeightedFinalScoreMap: util.Map[Int, Double] = ???
