@@ -69,19 +69,24 @@ trait ConferenceReviewing {
 
 class ConferenceReviewingImpl extends ConferenceReviewing:
   import ConferenceReviewing.Question
-  var reviews: List[(Int, util.Map[Question, Int])] = List.Nil()
+  private val reviews: util.List[(Int, util.Map[Question, Int])] = util.ArrayList[(Int, util.Map[Question, Int])]()
 
   override def loadReview(article: Int, scores: util.Map[Question, Int]): Unit =
     if scores.size() < Question.values.length then throw new IllegalArgumentException()
-    else reviews = reviews.append(List((article, scores)))
+    else reviews.add((article, scores))
   override def loadReview(article: Int, relevance: Int, significance: Int, confidence: Int, fin: Int): Unit =
     val map = new util.HashMap[Question, Int]()
     map.put(Question.RELEVANCE, relevance)
     map.put(Question.SIGNIFICANCE, significance)
     map.put(Question.CONFIDENCE, confidence)
     map.put(Question.FINAL, fin)
-    reviews = reviews.append(List((article, map)))
-  override def orderedScores(article: Int, question: Question): util.List[Int] = ???
+    reviews.add((article, map))
+  override def orderedScores(article: Int, question: Question): util.List[Int] =
+    reviews.stream()
+      .filter(_._1 == article)
+      .map(_._2.get(question))
+      .sorted()
+      .collect(util.stream.Collectors.toList())
   override def averageFinalScore(article: Int): Double = ???
   override def acceptedArticles: List[Int] = ???
   override def sortedAcceptedArticles: List[Nothing] = ???
